@@ -1,15 +1,74 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MouseTrack Demo</title>
-</head>
-<body>
-    <h1>Move your mouse or click anywhere</h1>
-    <script src="MouseTrack.js"></script>
-    <script>
-        MouseTrack.init(null); // Initialize tracking
-    </script>
-</body>
-</html>
+MouseTrack.moveListener = function (evt) {
+	if( MouseTrack.vars.srvr != null ) {
+		var time = MouseTrack.getPreciseTimestamp();
+
+		var x = evt.pageX,
+			y = evt.pageY,
+			w = MouseTrack.vars.w.innerWidth || MouseTrack.vars.e.clientWidth || MouseTrack.vars.g.clientWidth,
+			h = MouseTrack.vars.w.innerHeight|| MouseTrack.vars.e.clientHeight|| MouseTrack.vars.g.clientHeight,
+		  src = window.location;	// dgacitua: encodeURIComponent() has been removed
+
+		if( x == null && evt.clientX != null ) {
+			x = evt.clientX + (MouseTrack.vars.e && MouseTrack.vars.e.scrollLeft || MouseTrack.vars.g && MouseTrack.vars.g.scrollLeft || 0)
+			- (MouseTrack.vars.e && MouseTrack.vars.e.clientLeft || MouseTrack.vars.g && MouseTrack.vars.g.clientLeft || 0);
+			y = evt.clientY + (MouseTrack.vars.e && MouseTrack.vars.e.scrollTop  || MouseTrack.vars.g && MouseTrack.vars.g.scrollTop  || 0)
+			- (MouseTrack.vars.e && MouseTrack.vars.e.clientTop  || MouseTrack.vars.g && MouseTrack.vars.g.clientTop  || 0);
+		}
+
+		// dgacitua: Output is displayed through Javascript's console and stored on movement_output object
+		console.log('Mouse Movement! X:' + x + ' Y:' + y + ' W:' + w + ' H:' + h + ' TIME:' + time + ' SRC:' + src);
+
+		var movement_output = {
+			type: 'mouse_movement',
+			x_pos: x,
+			y_pos: y,
+			w_scr: w,
+			h_scr: h,
+			timestamp: time,
+			src_url: src
+		};
+	}
+};
+
+// dgacitua: Modified method from moveListener() for registering mouse clicks
+MouseTrack.clickListener = function (evt) {
+    if( MouseTrack.vars.srvr != null ) {
+		var time = MouseTrack.getPreciseTimestamp();
+
+		var x = evt.pageX,
+		    y = evt.pageY,
+		    w = MouseTrack.vars.w.innerWidth || MouseTrack.vars.e.clientWidth || MouseTrack.vars.g.clientWidth,
+		    h = MouseTrack.vars.w.innerHeight|| MouseTrack.vars.e.clientHeight|| MouseTrack.vars.g.clientHeight,
+		  src = window.location;
+
+		if( x == null && evt.clientX != null ) {
+		    x = evt.clientX + (MouseTrack.vars.e && MouseTrack.vars.e.scrollLeft || MouseTrack.vars.g && MouseTrack.vars.g.scrollLeft || 0)
+			- (MouseTrack.vars.e && MouseTrack.vars.e.clientLeft || MouseTrack.vars.g && MouseTrack.vars.g.clientLeft || 0);
+		    y = evt.clientY + (MouseTrack.vars.e && MouseTrack.vars.e.scrollTop  || MouseTrack.vars.g && MouseTrack.vars.g.scrollTop  || 0)
+			- (MouseTrack.vars.e && MouseTrack.vars.e.clientTop  || MouseTrack.vars.g && MouseTrack.vars.g.clientTop  || 0);
+		}
+
+		// dgacitua: Output is displayed through Javascript's console and stored on click_output object
+		console.log('Mouse Click! X:' + x + ' Y:' + y + ' W:' + w + ' H:' + h + ' TIME:' + time + ' SRC:' + src);
+
+		var click_output = {
+			type: 'mouse_click',
+			x_pos: x,
+			y_pos: y,
+			w_scr: w,
+			h_scr: h,
+			timestamp: time,
+			src_url: src
+		};
+    }
+};
+
+
+// dpapathanasiou: An initialization function to set the MouseTrack.vars.srvr
+// value and add the proper event handler for mouse tracking.
+MouseTrack.init = function(srvr) {
+	MouseTrack.vars.srvr = srvr;				// Server instance URL
+    MouseTrack.vars.navTime = Date.now();		// Navigation start Unix timestamp
+    MouseTrack.addEvent(MouseTrack.vars.g, "click", MouseTrack.clickListener);		// Add event for tracking mouse clicks
+    MouseTrack.addEvent(MouseTrack.vars.g, "mouseover", MouseTrack.moveListener);	// Add event for tracking mouse movements
+};
